@@ -1,0 +1,15 @@
+[Unit]
+Description=Zent - Zenoku Post (SMTP/POP3/IMAP)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/zent run /etc/zent/zent.conf
+Restart=always
+RestartSec=5
+# 929MB RAM на VPS — ограничим
+MemoryMax=256M
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target

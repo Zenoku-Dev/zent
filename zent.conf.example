@@ -1,0 +1,47 @@
+# /etc/zent/zent.conf — конфиг Zent (Zenoku Post)
+# формат: key = value, # — комментарий; пустое значение = слушатель выключен
+
+hostname = mail.rival-afk.com
+domains = rival-afk.com
+
+# TLS (PEM). Нужен для 465/993/995 и STARTTLS
+tls_cert = /etc/zent/fullchain.pem
+tls_key = /etc/zent/privkey.pem
+
+# пути
+db = /var/lib/zent
+store = /var/lib/zent/mail
+queue = /var/lib/zent/queue
+
+# лимит размера письма, байт
+max_message = 26214400
+
+# слушатели (пусто = выключен)
+smtp_addr = 0.0.0.0:25
+submission_addr = 0.0.0.0:587
+smtps_addr = 0.0.0.0:465
+imap_addr = 0.0.0.0:143
+imaps_addr = 0.0.0.0:993
+pop3_addr = 0.0.0.0:110
+pop3s_addr = 0.0.0.0:995
+
+# smarthost для исходящих, пока провайдер не откроет 25
+# relay_host = relay.example.com
+# relay_port = 587
+# relay_user =
+# relay_pass =
+
+# антиспам-политика (заявка провайдеру: SPF+DKIM+DMARC+PTR настроены)
+dkim_selector = zent
+dmarc_reject = yes
+
+# общая система аутентификации (rival-auth): пароли проверяет auth.rival-afk.com
+# auth_mode = auth | local (локальные hash'и из `zent user add --pass`)
+auth_url = https://auth.rival-afk.com
+auth_mode = auth
+
+# агент-канал с redmi (телефон сам подключается сюда)
+agent_addr = 0.0.0.0:7666
+agent_token = CHANGE-ME-long-random-token
+# порог спама нейронки (zent-ml)
+ml_threshold = 0.65

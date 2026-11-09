@@ -1,0 +1,18 @@
+[package]
+name = "zent"
+version = "0.1.0"
+edition = "2021"
+description = "Zent - Zenoku Post: полностью свой почтовый сервис (SMTP/POP3/IMAP), без postfix"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12", "logging"] }
+tokio-rustls = { version = "0.26", default-features = false, features = ["ring", "tls12"] }
+rustls-pemfile = "2"
+ring = "0.17"
+webpki-roots = "0.26"
+
+[profile.release]
+strip = true
+opt-level = 2
+# lto выключен: на VPS всего 929MB RAM, сборка с LTO уходит в OOM
