@@ -1,32 +1,37 @@
 #!/bin/sh
-# deploy.sh — деплой zent на VPS через rsh (инструмент агента, сам zent rsh не использует)
-# usage: ./deploy.sh [rsh-лейбл VPS, default: vps]
+# deploy.sh — деплой zent на VPS.
+#   1) x86_64-бинарь кладём на VPS (scp)
+#   2) кладём zent.conf (если ещё нет — ставим из файла)
+#   3) ставим systemd-сервис и запускаем
+# usage: ./deploy.sh <бинарь> [zent.conf]
 set -e
-HOST="${1:-vps}"
-RSH="${RSH:-rsh}"
+HOST="${HOST:-vps}"
+VPS_IP="${VPS_IP:-46.183.21.121}"
+VPS_KEY="${VPS_KEY:-$HOME/.ssh/zenoku-vps}"
+RSH="${RSH:-$HOME/.local/bin/rsh}"
+BIN="${1:-./zent}"
+CONF="${2:-./build-out/zent.conf}"
+REMOTE_BIN="/usr/local/bin/zent"
 
-echo "==> пушим исходники на $HOST"
-$RSH "$HOST" exec "mkdir -p ~/src/zent/src ~/src/zent/zent-ml"
-for f in Cargo.toml; do
-  $RSH "$HOST" push "$f" "~/src/zent/$f"
-done
-for f in src/*.rs; do
-  $RSH "$HOST" push "$f" "~/src/zent/$f"
-done
+[ -f "$BIN" ] || { echo "нет бинаря $BIN — собери его"; exit 1; }
+echo "==> бинарь: $BIN ($(sha256sum "$BIN" | cut -d' ' -f1 | head -c 16)…)"
 
-echo "==> rust/cargo на таргете"
-$RSH "$HOST" exec 'command -v cargo >/dev/null 2>&1 || { command -v rustup >/dev/null 2>&1 || curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal; }; . $HOME/.cargo/env 2>/dev/null || true; cargo --version'
+echo "==> scp бинарь -> $VPS_IP:$REMOTE_BIN"
+scp -i "$VPS_KEY" -o IdentitiesOnly=yes -o BatchMode=yes "$BIN" "root@$VPS_IP:$REMOTE_BIN"
 
-echo "==> сборка (release, без LTO — на VPS мало RAM)"
-$RSH "$HOST" exec '. $HOME/.cargo/env 2>/dev/null; cd ~/src/zent && cargo build --release 2>&1 | tail -5'
-
-echo "==> установка"
-$RSH "$HOST" exec 'install -m 755 ~/src/zent/target/release/zent /usr/local/bin/zent && mkdir -p /etc/zent /var/lib/zent/mail /var/lib/zent/queue && [ -f /etc/zent/zent.conf ] || cp ~/src/zent/zent.conf.example /etc/zent/zent.conf'
+echo "==> каталоги + конф (scp-им новый, если текущего нет)"
+$RSH "$HOST" exec 'chmod 755 /usr/local/bin/zent && mkdir -p /etc/zent /var/lib/zent/mail /var/lib/zent/queue /var/lib/zent/db'
+if $RSH "$HOST" exec 'test -f /etc/zent/zent.conf && echo exists' | grep -q exists; then
+  echo "    /etc/zent/zent.conf уже есть — не трогаем"
+else
+  scp -i "$VPS_KEY" -o IdentitiesOnly=yes -o BatchMode=yes "$CONF" "root@$VPS_IP:/etc/zent/zent.conf"
+fi
 
 echo "==> systemd"
-$RSH "$HOST" push zent.service /etc/systemd/system/zent.service
-$RSH "$HOST" exec 'systemctl daemon-reload && systemctl enable --now zent && systemctl status zent --no-pager | head -5'
+scp -i "$VPS_KEY" -o IdentitiesOnly=yes -o BatchMode=yes "$(dirname "$0")/zent.service" "root@$VPS_IP:/etc/systemd/system/zent.service"
+$RSH "$HOST" exec 'systemctl daemon-reload && systemctl enable --now zent && systemctl status zent --no-pager | head -6'
 
-echo "==> готово: zent на $HOST"
-echo "    юзеры: zent user add alice@rival-afk.com"
-echo "    TXT-записи: zent dns-records --ip 46.183.21.121"
+echo "==> готово"
+echo "    юзеры:    zent user add alice@rival-afk.com"
+echo "    DNS TXT:  zent dns-records --ip $VPS_IP"
+echo "    порты:    587 открыт, 25 ждёт провайдера (входящий MX)"

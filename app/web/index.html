@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f6f4">
+<title>Zent Mail — почта rival-afk.com</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%238b1a1a'/%3E%3Cpath d='M18 32 L50 56 L82 32 Z' fill='%23fff'/%3E%3Crect x='18' y='28' width='64' height='44' rx='6' fill='none' stroke='%23fff' stroke-width='5'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f7f6f4; --card:#ffffff; --border:#e7e5e1; --text:#1c1917;
+  --dim:#78716c; --accent:#8b1a1a; --accent-h:#6d1515;
+  --shadow:0 4px 16px rgba(28,25,23,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#171614; --card:#242220; --border:#38342f; --text:#e7e5e4;
+    --dim:#a8a29e; --accent:#e57373; --accent-h:#f08080;
+    --shadow:0 6px 20px rgba(0,0,0,.4);
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:-apple-system,"SF Pro Text","Inter","Segoe UI",Roboto,sans-serif;
+  font-size:15px; height:100vh; overflow:hidden;
+}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+.screen{position:absolute;inset:0;display:none}
+.screen.active{display:flex}
+
+/* ==== логин ==== */
+#login{align-items:center;justify-content:center}
+.login-card{
+  background:var(--card); border:1px solid var(--border); border-radius:14px;
+  padding:36px 34px; width:min(380px,100%); margin:16px; box-shadow:var(--shadow);
+}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+.logo svg{width:34px;height:34px}
+.logo-text{font-weight:700;font-size:20px;letter-spacing:-.2px}
+.logo-text small{display:block;font-size:12px;font-weight:600;color:var(--dim)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;color:var(--dim);margin-bottom:6px;font-weight:600}
+.field input{
+  width:100%; border:1px solid var(--border); background:var(--bg);
+  border-radius:8px; padding:10px 12px; outline:none; transition:border-color .15s;
+}
+.field input:focus{border-color:var(--accent)}
+.btn{
+  border:0; border-radius:8px; background:var(--accent); color:#fff;
+  padding:11px 14px; font-weight:600; width:100%; transition:background .15s;
+}
+.btn:hover{background:var(--accent-h)}
+.err{color:#b91c1c;font-size:13px;min-height:18px;margin-bottom:8px}
+
+/* ==== почта ==== */
+#mail{flex-direction:column}
+.topbar{
+  display:flex; align-items:center; gap:8px; padding:10px 14px;
+  border-bottom:1px solid var(--border); background:var(--card);
+}
+.topbar .logo svg{width:26px;height:26px}
+.topbar .logo-text{font-size:16px}
+.search{
+  margin-left:auto; display:flex; gap:8px; align-items:center;
+  background:var(--bg); border:1px solid var(--border); border-radius:8px;
+  padding:7px 10px; min-width:0; width:min(280px,45vw);
+}
+.search input{border:0;background:transparent;outline:0;width:100%}
+.icon-btn{
+  background:transparent;border:1px solid var(--border);border-radius:8px;
+  width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;
+  color:var(--dim); transition:all .15s;
+}
+.icon-btn:hover{color:var(--text);border-color:var(--dim)}
+.main{flex:1;display:flex;min-height:0}
+
+/* сайдбар */
+.side{
+  width:230px; border-right:1px solid var(--border); background:var(--card);
+  display:flex; flex-direction:column; padding:12px 10px; gap:4px; overflow-y:auto;
+}
+.compose-btn{
+  background:var(--accent); color:#fff; border:0; border-radius:10px;
+  padding:12px 14px; font-weight:600; margin-bottom:10px; transition:background .15s;
+  display:flex;align-items:center;gap:10px;
+}
+.compose-btn:hover{background:var(--accent-h)}
+.folder{
+  display:flex;align-items:center;gap:9px; padding:8px 10px; border-radius:8px;
+  background:transparent;border:0;color:var(--dim);font-weight:600;text-align:left;
+}
+.folder:hover{background:var(--bg);color:var(--text)}
+.folder.active{background:var(--bg);color:var(--text)}
+.folder .n{margin-left:auto;font-size:12px;color:var(--accent)}
+.side-bottom{margin-top:auto;display:flex;gap:8px;align-items:center;padding:10px;border-top:1px solid var(--border)}
+.avatar{
+  width:34px;height:34px;border-radius:50%;background:var(--accent);
+  color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;
+}
+.me{font-size:13px}
+.me .e{color:var(--dim);font-size:11px}
+.logout{margin-left:auto;background:transparent;border:0;color:var(--dim);font-size:12px;text-decoration:underline}
+
+/* список писем */
+.list{
+  width:360px; min-width:260px; border-right:1px solid var(--border);
+  overflow-y:auto; background:var(--bg);
+}
+.msg{
+  display:flex; gap:10px; padding:11px 12px; border-bottom:1px solid var(--border);
+  background:transparent;border-left:3px solid transparent; text-align:left; width:100%;
+}
+.msg:hover{background:var(--card)}
+.msg.unread{border-left-color:var(--accent)}
+.msg .check{flex-shrink:0;margin-top:2px}
+.msg .body{min-width:0;flex:1}
+.msg .row1{display:flex;justify-content:space-between;gap:8px;margin-bottom:2px}
+.msg .from{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msg .date{color:var(--dim);font-size:12px;white-space:nowrap}
+.msg .subj{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
+.msg.unread .subj{font-weight:600}
+.msg .prev{color:var(--dim);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty{padding:40px;text-align:center;color:var(--dim)}
+
+/* просмотр */
+.view{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--card)}
+.view-head{
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:14px;
+}
+.view-head h1{font-size:20px;margin-bottom:6px}
+.view-head .meta{color:var(--dim);font-size:13px}
+.view-actions{display:flex;gap:8px;margin-left:auto;flex-shrink:0}
+.view-body{
+  flex:1;overflow-y:auto;padding:22px;line-height:1.55;font-size:15px;
+  overflow-wrap:break-word;
+}
+.view-body img{max-width:100%}
+.attachments{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.att{
+  display:flex;gap:8px;align-items:center;border:1px solid var(--border);
+  border-radius:8px;padding:7px 10px;font-size:13px;background:var(--bg);text-decoration:none;
+}
+.att span{color:var(--dim);font-size:11px}
+
+/* ==== композер ==== */
+.compose{
+  position:absolute;right:16px;bottom:16px;width:min(560px,94vw);height:min(480px,75vh);
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  box-shadow:var(--shadow); display:flex;flex-direction:column;z-index:10;overflow:hidden;
+}
+.compose-head{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg)}
+.compose-head .t{font-weight:700}
+.compose-body{flex:1;display:flex;flex-direction:column;padding:10px 16px}
+.compose-body input,.compose-body textarea{
+  border:0;outline:0;background:transparent;padding:8px 2px;border-bottom:1px solid var(--border);width:100%;
+}
+.compose-body textarea{border-bottom:0;flex:1;resize:none}
+.compose-foot{display:flex;gap:10px;padding:12px 16px;border-top:1px solid var(--border)}
+.btn-mini{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:8px 14px;font-weight:600}
+.btn-ghost{background:transparent;border:1px solid var(--border);border-radius:8px;padding:8px 14px}
+
+@media (max-width:900px){
+  .side{display:none}
+  .list{width:100%}
+  .list.hidden{display:none}
+  .view{display:none}
+  .view.shown{display:flex}
+  .search{width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- ЭКРАН 1: вход -->
+<section id="login" class="screen active">
+  <form class="login-card" id="loginForm">
+    <div class="logo">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="20" fill="#8b1a1a"/><path d="M18 32 L50 56 L82 32 Z" fill="#fff"/><rect x="18" y="28" width="64" height="44" rx="6" fill="none" stroke="#fff" stroke-width="5"/></svg>
+      <div class="logo-text">Zent Mail<small>почта rival-afk.com</small></div>
+    </div>
+    <div class="err" id="loginError"></div>
+    <div class="field"><label for="u">Почта</label><input id="u" name="u" placeholder="you@rival-afk.com" autocomplete="username" required></div>
+    <div class="field"><label for="p">Пароль</label><input id="p" name="p" type="password" placeholder="Общий с rival-auth" autocomplete="current-password" required></div>
+    <button class="btn" type="submit">Войти</button>
+  </form>
+</section>
+
+<!-- ЭКРАН 2: почта -->
+<section id="mail" class="screen">
+  <header class="topbar">
+    <div class="logo">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="20" fill="#8b1a1a"/><path d="M18 32 L50 56 L82 32 Z" fill="#fff"/><rect x="18" y="28" width="64" height="44" rx="6" fill="none" stroke="#fff" stroke-width="5"/></svg>
+      <div class="logo-text">Zent Mail</div>
+    </div>
+    <label class="search">🔍<input id="search" placeholder="Поиск писем…" aria-label="Поиск"></label>
+    <button class="icon-btn" id="refreshBtn" title="Обновить">⟳</button>
+  </header>
+
+  <div class="main">
+    <!-- Сайдбар -->
+    <nav class="side" aria-label="Папки">
+      <button class="compose-btn" id="composeBtn">✎ Написать</button>
+      <button class="folder active" data-folder="INBOX">📥 Входящие <span class="n" id="badge-inbox"></span></button>
+      <button class="folder" data-folder="Junk">🧹 Спам</button>
+      <button class="folder" data-folder="Sent">📤 Отправленные</button>
+      <button class="folder" data-folder="Trash">🗑 Корзина</button>
+      <div class="side-bottom">
+        <div class="avatar" id="avatar">?</div>
+        <div class="me"><div id="meName">—</div><div class="e" id="meEmail">—</div></div>
+        <button class="logout" id="logoutBtn">выйти</button>
+      </div>
+    </nav>
+
+    <!-- Список -->
+    <div class="list" id="list" aria-label="Письма"></div>
+
+    <!-- Просмотр письма -->
+    <div class="view" id="view">
+      <div class="view-head">
+        <div>
+          <h1 id="viewSubject">—</h1>
+          <div class="meta" id="viewMeta">—</div>
+        </div>
+        <div class="view-actions">
+          <button class="icon-btn" id="replyBtn" title="Ответить">↩</button>
+          <button class="icon-btn" id="deleteBtn" title="Удалить в корзину">🗑</button>
+          <button class="icon-btn" id="spamBtn" title="В спам">🧹</button>
+        </div>
+      </div>
+      <div class="view-body" id="viewBody"><div class="empty">Выбери письмо слева</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Композер -->
+<div class="compose" id="compose" hidden>
+  <div class="compose-head"><span class="t" id="composeTitle">Новое письмо</span><button class="icon-btn" id="composeClose" style="margin-left:auto">✕</button></div>
+  <div class="compose-body">
+    <input id="to" placeholder="Кому" autocomplete="off">
+    <input id="subj" placeholder="Тема" autocomplete="off">
+    <textarea id="body" placeholder="Текст письма…"></textarea>
+  </div>
+  <div class="compose-foot">
+    <button class="btn-mini" id="sendBtn">Отправить</button>
+    <button class="btn-ghost" id="cancelBtn">Отмена</button>
+  </div>
+</div>
+
+<script>
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const state = { folder:"INBOX", messages:[], current:null, user:null };
+
+async function api(path, opts={}){
+  const h = {"Content-Type":"application/json"};
+  const tok = sessionStorage.getItem("zent-token");
+  if (tok) h["Authorization"] = "Bearer " + tok;
+  if (opts.headers) Object.assign(h, opts.headers);
+  const r = await fetch(path, {...opts, headers:h});
+  let body = null;
+  try { body = await r.json(); } catch(_) {}
+  if (!r.ok) throw Object.assign(new Error((body&&body.error)||r.statusText), {status:r.status, body});
+  return body;
+}
+
+async function restoreSession(){
+  const tok = sessionStorage.getItem("zent-token");
+  if (!tok) return;
+  try {
+    const d = await api("/api/me");
+    state.user = d.user;
+    $("#meEmail").textContent = d.user;
+    $("#meName").textContent = d.name || d.user.split("@")[0];
+    $("#avatar").textContent = (d.name || d.user).slice(0,1).toUpperCase();
+    $("#login").classList.remove("active");
+    $("#mail").classList.add("active");
+    await loadMessages();
+  } catch(_) {
+    sessionStorage.removeItem("zent-token");
+  }
+}
+
+async function loadFolders(){
+  const d = await api("/api/folders");
+  // будущее: динамические папки; пока ничего не меняем
+  return d;
+}
+
+async function loadMessages(){
+  const list = $("#list");
+  list.innerHTML = '<div class="empty">Загружаю…</div>';
+  try {
+    const d = await api(`/api/messages?folder=${encodeURIComponent(state.folder)}&limit=100`);
+    state.messages = d.messages || [];
+    renderList(state.messages);
+  } catch(e) {
+    list.innerHTML = `<div class="empty">Ошибка загрузки: ${e.message}</div>`;
+  }
+}
+
+function renderList(msgs){
+  const list = $("#list");
+  if (!msgs.length) { list.innerHTML = '<div class="empty">Пусто</div>'; return; }
+  const q = $("#search").value.trim().toLowerCase();
+  const filtered = q ? msgs.filter(m => ((m.from||"")+" "+(m.subject||"")).toLowerCase().includes(q)) : msgs;
+  list.innerHTML = filtered.map(m => `
+    <button class="msg${m.unread ? ' unread':''}" data-uid="${m.uid}">
+      <div class="body">
+        <div class="row1">
+          <span class="from">${esc(m.from||"—")}</span>
+          <span class="date">${esc(fmtDate(m.date))}</span>
+        </div>
+        <div class="subj">${esc(m.subject||"—")}</div>
+        <div class="prev">${esc(m.prev||"")}</div>
+      </div>
+    </button>`).join("");
+  $$(".msg", list).forEach(el => el.addEventListener("click", () => openMessage(+el.dataset.uid)));
+}
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function fmtDate(s){
+  try {
+    const d = new Date(s); if (isNaN(d)) return s||"";
+    const now = new Date();
+    const sameDay = d.toDateString() === now.toDateString();
+    const sameYear = d.getFullYear() === now.getFullYear();
+    const time = d.toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
+    return sameDay ? time : d.toLocaleDateString("ru-RU",{day:"numeric",month:"short", year: sameYear?undefined:"numeric"});
+  } catch(_) { return s||""; }
+}
+
+async function openMessage(uid){
+  state.current = uid;
+  const d = await api(`/api/messages/${encodeURIComponent(state.folder)}/${uid}`);
+  const m = d.message;
+  $("#viewSubject").textContent = m.subject || "—";
+  $("#viewMeta").textContent = `${m.from}  →  ${m.to}  ·  ${m.date||""}`;
+  const body = $("#viewBody");
+  if (m.html) {
+    body.innerHTML = sanitizeHtml(m.html);
+  } else {
+    body.textContent = m.text || "";
+  }
+  if (m.attachments && m.attachments.length) {
+    body.innerHTML += '<div class="attachments">'+ m.attachments.map(a =>
+      `<a class="att" href="/api/messages/${encodeURIComponent(state.folder)}/${uid}/attachment/${encodeURIComponent(a.name)}">📎 ${esc(a.name)} <span>${a.size} байт</span></a>`
+    ).join("") + '</div>';
+  }
+  $("#view").classList.add("shown");
+  $("#list").classList.add("hidden");
+}
+function sanitizeHtml(html){
+  // выкидываем скрипты/опасные теги; оставляем простую разметку
+  const tmp = document.createElement("div");
+  tmp.innerHTML = html.replace(/<script[\s\S]*?<\/script>/gi,"")
+                      .replace(/<iframe[\s\S]*?<\/iframe>/gi,"")
+                      .replace(/ on\w+="[^"]*"/gi,"")
+                      .replace(/ on\w+='[^']*'/gi,"")
+                      .replace(/javascript:/gi,"");
+  return tmp.innerHTML;
+}
+
+$("#loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const u = $("#u").value.trim().toLowerCase();
+  const p = $("#p").value;
+  const err = $("#loginError"); err.textContent = "";
+  try {
+    const d = await api("/api/login", {method:"POST", body: JSON.stringify({user:u, pass:p})});
+    sessionStorage.setItem("zent-token", d.token);
+    state.user = d.user || u;
+    $("#meEmail").textContent = state.user;
+    $("#meName").textContent = d.name || state.user.split("@")[0];
+    $("#avatar").textContent = (d.name||state.user).slice(0,1).toUpperCase();
+    $("#login").classList.remove("active");
+    $("#mail").classList.add("active");
+    await loadMessages();
+  } catch(e2) {
+    err.textContent = e2.status === 401 ? "Неверный пароль" : "Ошибка входа: " + e2.message;
+  }
+});
+
+$("#logoutBtn").addEventListener("click", async () => {
+  try { await api("/api/logout", {method:"POST", body:"{}"}); } catch(_) {}
+  sessionStorage.removeItem("zent-token");
+  location.reload();
+});
+$("#refreshBtn").addEventListener("click", loadMessages);
+$("#search").addEventListener("input", () => renderList(state.messages));
+
+restoreSession();
+$$(".folder").forEach(b => b.addEventListener("click", () => {
+  $$(".folder").forEach(x => x.classList.remove("active"));
+  b.classList.add("active");
+  state.folder = b.dataset.folder;
+  $("#view").classList.remove("shown");
+  $("#list").classList.remove("hidden");
+  loadMessages();
+}));
+
+$("#deleteBtn").addEventListener("click", async () => {
+  if (!state.current) return;
+  await api(`/api/messages/${encodeURIComponent(state.folder)}/${state.current}/delete`, {method:"POST", body: JSON.stringify({dest:"Trash"})});
+  await loadMessages();
+});
+$("#spamBtn").addEventListener("click", async () => {
+  if (!state.current) return;
+  await api(`/api/messages/${encodeURIComponent(state.folder)}/${state.current}/move`, {method:"POST", body: JSON.stringify({dest:"Junk"})});
+  await loadMessages();
+});
+$("#replyBtn").addEventListener("click", () => {
+  const m = $("#viewSubject").textContent;
+  $("#composeTitle").textContent = "Ответ: " + m;
+  $("#to").value = $("#viewMeta").textContent.split("→")[0].trim();
+  $("#subj").value = "Re: " + m;
+  $("#body").value = "";
+  $("#compose").hidden = false;
+});
+$("#composeBtn").addEventListener("click", () => {
+  $("#composeTitle").textContent = "Новое письмо";
+  $("#to").value = ""; $("#subj").value = ""; $("#body").value = "";
+  $("#compose").hidden = false;
+});
+$("#composeClose").addEventListener("click", () => $("#compose").hidden = true);
+$("#cancelBtn").addEventListener("click", () => $("#compose").hidden = true);
+$("#sendBtn").addEventListener("click", async () => {
+  const to = $("#to").value.trim(), subj = $("#subj").value.trim(), body = $("#body").value;
+  if (!to || !subj) { alert("Заполни получателя и тему"); return; }
+  await api("/api/send", {method:"POST", body: JSON.stringify({to, subject:subj, body})});
+  $("#compose").hidden = true;
+});
+</script>
+</body>
+</html>

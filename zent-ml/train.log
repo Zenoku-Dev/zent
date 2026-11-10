@@ -1,5 +1,14 @@
 spamassassin: 6067 docs (ham 4202 / spam 1865)
-ru_hf: ham 25000 spam 21461
-telegram: ham 6000 spam 5979
+ru_hf: ham 7000 spam 7000
+telegram: ham 3000 spam 3000
 encoded 10000
 encoded 20000
+train 23461 val 2606
+epoch 0 loss 0.8127 | val acc 0.557 prec 0.000 rec 0.000 pr-auc 0.654
+epoch 1 loss 0.7892 | val acc 0.558 prec 1.000 rec 0.001 pr-auc 0.834
+epoch 2 loss 0.6872 | val acc 0.800 prec 0.983 rec 0.558 pr-auc 0.937
+epoch 3 loss 0.4977 | val acc 0.904 prec 0.965 rec 0.814 pr-auc 0.962
+epoch 4 loss 0.3441 | val acc 0.927 prec 0.963 rec 0.867 pr-auc 0.863
+epoch 5 loss 0.2604 | val acc 0.939 prec 0.962 rec 0.897 pr-auc 0.640
+saved spam_model.bin (2230635 bytes)
+done

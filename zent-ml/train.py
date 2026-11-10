@@ -111,12 +111,12 @@ def load():
         len(docs), sum(1 for _, y in docs if y == 0), sum(1 for _, y in docs if y == 1)), flush=True)
 
     p = os.path.join(HERE, "data", "hf_anti_spam_ru.csv")
-    ham, spam = csv_texts(p, "text", "is_spam", {"1"}, 25000, 22000)
+    ham, spam = csv_texts(p, "text", "is_spam", {"1"}, 7000, 7000)
     print("ru_hf: ham %d spam %d" % (len(ham), len(spam)), flush=True)
     docs += [(t, 0) for t in ham] + [(t, 1) for t in spam]
 
     p = os.path.join(HERE, "data", "hf_telegram_spam_ham.csv")
-    ham, spam = csv_texts(p, "text", "text_type", {"spam"}, 6000, 6000)
+    ham, spam = csv_texts(p, "text", "text_type", {"spam"}, 3000, 3000)
     print("telegram: ham %d spam %d" % (len(ham), len(spam)), flush=True)
     docs += [(t, 0) for t in ham] + [(t, 1) for t in spam]
     return docs

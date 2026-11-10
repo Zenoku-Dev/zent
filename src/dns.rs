@@ -4,17 +4,21 @@ use std::time::Duration;
 
 use crate::util::{hex, urandom};
 
-fn resolv_conf_ns() -> String {
+fn resolv_conf_ns() -> Vec<String> {
     let cfg = std::fs::read_to_string("/etc/resolv.conf").unwrap_or_default();
+    let mut out = Vec::new();
     for line in cfg.lines() {
         let mut it = line.split_whitespace();
         if it.next() == Some("nameserver") {
             if let Some(ns) = it.next() {
-                return ns.to_string();
+                out.push(ns.to_string());
             }
         }
     }
-    "1.1.1.1".into()
+    if out.is_empty() {
+        out.push("8.8.8.8".to_string());
+    }
+    out
 }
 
 // имя -> метки DNS-запроса
@@ -148,24 +152,37 @@ fn parse_response(msg: &[u8], qtype: u16) -> Option<(Vec<(u16, String)>, Vec<Ipv
 
 fn query(name: &str, qtype: u16) -> Option<(Vec<(u16, String)>, Vec<Ipv4Addr>, Vec<String>)> {
     let q = build_query(name, qtype);
-    let ns = resolv_conf_ns();
-    let sock = UdpSocket::bind(("0.0.0.0", 0)).ok()?;
-    sock.set_read_timeout(Some(Duration::from_secs(5))).ok()?;
-    let dst = if ns.contains(':') {
-        format!("[{}]:53", ns)
-    } else {
-        format!("{}:53", ns)
-    };
-    sock.send_to(&q.packet, &dst).ok()?;
-    let mut buf = [0u8; 4096];
-    for _ in 0..3 {
-        let (n, _) = sock.recv_from(&mut buf).ok()?;
-        let msg = &buf[..n];
-        let id = u16::from_be_bytes([msg[0], msg[1]]);
-        if id != q.id {
+    for ns in resolv_conf_ns() {
+        let dst = if ns.contains(':') {
+            format!("[{}]:53", ns)
+        } else {
+            format!("{}:53", ns)
+        };
+        let sock = match UdpSocket::bind(("0.0.0.0", 0)) {
+            Ok(s) => s,
+            Err(_) => continue,
+        };
+        sock.set_read_timeout(Some(Duration::from_millis(2000))).ok()?;
+        if sock.send_to(&q.packet, &dst).is_err() {
             continue;
         }
-        return parse_response(msg, qtype);
+        let mut buf = [0u8; 4096];
+        for _ in 0..2 {
+            match sock.recv_from(&mut buf) {
+                Ok((n, _)) => {
+                    let msg = &buf[..n];
+                    if msg.len() < 12 {
+                        continue;
+                    }
+                    let id = u16::from_be_bytes([msg[0], msg[1]]);
+                    if id != q.id {
+                        continue;
+                    }
+                    return parse_response(msg, qtype);
+                }
+                Err(_) => break, // timeout — пробуем следующий сервер
+            }
+        }
     }
     None
 }
