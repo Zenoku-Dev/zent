@@ -29,5 +29,5 @@ android {
     }
     kotlin { jvmToolchain(21) }
 
-    packaging { resources { excludes += listOf("/META-INF/{AL2.0,LGPL2.1}", "/META-INF/[^/]*/licenses/**") } }
+    packaging { resources { excludes += listOf("META-INF/licenses/**", "META-INF/AL2.0", "META-INF/LGPL2.1") } }
 }
