@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/card"
+        android:paddingHorizontal="14dp"
+        android:elevation="2dp">
+
+        <ImageView
+            android:src="@mipmap/ic_launcher"
+            android:layout_width="34dp"
+            android:layout_height="34dp" />
+        <TextView
+            android:text="@string/app_name"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/text"
+            android:layout_marginStart="10dp" />
+        <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+        <Spinner
+            android:id="@+id/folder_spinner"
+            android:layout_width="140dp"
+            android:layout_height="40dp"
+            android:background="@null"
+            android:popupBackground="@android:color/white"
+            android:paddingHorizontal="8dp"
+            android:textColor="@color/text" />
+        <Button
+            android:id="@+id/compose_btn"
+            android:layout_width="44dp"
+            android:layout_height="40dp"
+            android:text="✎"
+            android:textSize="20sp"
+            android:backgroundTint="@color/accent"
+            android:textColor="@color/white"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/message_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@color/border"
+        android:dividerHeight="1dp"
+        android:listSelector="@android:color/transparent" />
+
+    <TextView
+        android:id="@+id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textSize="14sp"
+        android:textColor="@color/text_dim"
+        android:visibility="gone" />
+</LinearLayout>

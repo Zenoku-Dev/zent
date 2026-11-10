@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Zent Mail</string>
+    <string name="tagline">почта rival-afk.com</string>
+    <string name="email_hint">you@rival-afk.com</string>
+    <string name="password_hint">Пароль (общий с rival-auth)</string>
+    <string name="sign_in">Войти</string>
+    <string name="signing_in">Вхожу…</string>
+    <string name="inbox">Входящие</string>
+    <string name="spam">Спам</string>
+    <string name="sent">Отправленные</string>
+    <string name="trash">Корзина</string>
+    <string name="compose">Написать</string>
+    <string name="refresh">Обновить</string>
+    <string name="error_load">Не удалось загрузить письма</string>
+    <string name="wrong_credentials">Неверный пароль</string>
+    <string name="network_error">Ошибка сети</string>
+    <string name="reply">Ответить</string>
+    <string name="delete">Удалить</string>
+    <string name="spam_move">В спам</string>
+    <string name="send">Отправить</string>
+    <string name="to">Кому</string>
+    <string name="subject">Тема</string>
+    <string name="message">Сообщение…</string>
+    <string name="login_required">Требуется вход</string>
+</resources>
