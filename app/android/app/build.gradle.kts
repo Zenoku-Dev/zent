@@ -27,7 +27,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlin { jvmToolchain(17) }
+    kotlin { jvmToolchain(21) }
 
     packaging { resources { excludes += listOf("/META-INF/{AL2.0,LGPL2.1}", "/META-INF/[^/]*/licenses/**") } }
 }
