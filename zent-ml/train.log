@@ -1,0 +1,5 @@
+spamassassin: 6067 docs (ham 4202 / spam 1865)
+ru_hf: ham 25000 spam 21461
+telegram: ham 6000 spam 5979
+encoded 10000
+encoded 20000

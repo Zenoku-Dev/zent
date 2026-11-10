@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/rival-afk/zenoku-design/main/assets/zent/png/readme-banner-dark.png">
-    <img src="https://raw.githubusercontent.com/rival-afk/zenoku-design/main/assets/zent/png/readme-banner.png" alt="zent" width="440">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Zenoku-Dev/zenoku-design/main/assets/zent/png/readme-banner-dark.png">
+    <img src="https://raw.githubusercontent.com/Zenoku-Dev/zenoku-design/main/assets/zent/png/readme-banner.png" alt="zent" width="440">
   </picture>
 </p>
 
